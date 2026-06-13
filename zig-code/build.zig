@@ -2,9 +2,15 @@ const std = @import("std");
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
+    const wasm_target = b.resolveTargetQuery(.{ .cpu_arch = .wasm32, .os_tag = .freestanding });
     const optimize = b.standardOptimizeOption(.{});
     const board_mod = b.createModule(.{
         .target = target,
+        .optimize = optimize,
+        .root_source_file = b.path("src/board/board.zig"),
+    });
+    const board_wasm = b.createModule(.{
+        .target = wasm_target,
         .optimize = optimize,
         .root_source_file = b.path("src/board/board.zig"),
     });
@@ -18,16 +24,17 @@ pub fn build(b: *std.Build) void {
         },
     });
     const exe = b.addExecutable(.{
-        .name = "example",
+        .name = "gol_cli",
         .root_module = main_mod,
     });
     const wasm_lib = b.addExecutable(
         .{
             .name = "board",
-            .root_module = board_mod,
+            .root_module = board_wasm,
         },
     );
-    exe.rdynamic = true;
+    wasm_lib.rdynamic = true;
+    wasm_lib.entry = .disabled;
 
     b.installArtifact(exe);
     b.installArtifact(wasm_lib);

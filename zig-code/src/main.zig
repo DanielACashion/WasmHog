@@ -6,6 +6,7 @@ const width = 10;
 pub fn main(init: std.process.Init) !void {
     std.debug.print("Hello\n", .{});
     var game_board = try Board.init(init.gpa, width, height);
+    defer game_board.deinit(init.gpa);
     try game_board.setCell(1, 0, 1);
     try game_board.setCell(2, 1, 1);
     try game_board.setCell(0, 2, 1);
