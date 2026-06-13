@@ -23,6 +23,10 @@ pub const Board = struct {
             .height = height,
         };
     }
+    pub fn deinit(self: *Board, gpa: std.mem.Allocator) void {
+        gpa.free(self._board);
+        gpa.free(self._scratch);
+    }
 
     pub fn setCell(self: *Board, x: u8, y: u8, value: i8) BoardErrors!void {
         if (x >= self.width or y >= self.height) {
